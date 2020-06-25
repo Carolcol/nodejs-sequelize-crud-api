@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const sequelize = require('../util/database');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -13,13 +14,19 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(null, title, imageUrl, description, price);
-  product
-    .save()
-    .then(() => {
-      res.redirect('/');
-    })
-    .catch(err => console.log(err));
+  Product.create({
+    title: title,
+    price: price,
+    imageUrl: imageUrl,
+    description: description
+  })
+  .then(result => {
+    console.log('product created')
+    //console.log(result);
+  })
+  .catch(err => {
+    console.log(err);
+  })
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -28,7 +35,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.findById(prodId, product => {
+  Product.findByPk(prodId, product => {
     if (!product) {
       return res.redirect('/');
     }
